@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Audio Player Editor for Genially</title>
+
+<style>
+  :root {
+    --bg: #10131c;
+    --card: rgba(255,255,255,.08);
+    --card2: rgba(255,255,255,.12);
+    --text: #f7f7fb;
+    --muted: rgba(255,255,255,.62);
+    --accent: #8b5cf6;
+    --accent2: #06b6d4;
+    --danger: #ff5577;
+    --radius: 26px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 10% 10%, rgba(139,92,246,.35), transparent 35%),
+      radial-gradient(circle at 90% 20%, rgba(6,182,212,.28), transparent 35%),
+      linear-gradient(135deg, #090b12, #171827 55%, #0b0d15);
+    padding: 28px;
+  }
+
+  .app {
+    max-width: 1220px;
+    margin: 0 auto;
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 48px);
+    line-height: 1;
+    letter-spacing: -1.5px;
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    max-width: 720px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .badge {
+    padding: 10px 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 999px;
+    background: rgba(255,255,255,.07);
+    color: rgba(255,255,255,.8);
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .panel {
+    border: 1px solid rgba(255,255,255,.13);
+    background: rgba(255,255,255,.075);
+    border-radius: var(--radius);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 80px rgba(0,0,0,.32);
+    overflow: hidden;
+  }
+
+  .panel-title {
+    padding: 18px 20px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.05);
+  }
+
+  .form {
+    padding: 20px;
+    display: grid;
+    gap: 16px;
+  }
+
+  label {
+    display: grid;
+    gap: 7px;
+    font-size: 13px;
+    color: rgba(255,255,255,.78);
+    font-weight: 700;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.25);
+    color: #fff;
+    border-radius: 15px;
+    padding: 12px 13px;
+    outline: none;
+    font: inherit;
+  }
+
+  textarea {
+    min-height: 86px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  input[type="color"] {
+    height: 46px;
+    padding: 5px;
+    cursor: pointer;
+  }
+
+  input[type="range"] {
+    padding: 0;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .hint {
+    color: rgba(255,255,255,.52);
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 500;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+  }
+
+  button {
+    border: 0;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 16px;
+    padding: 12px 16px;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 14px 30px rgba(0,0,0,.26);
+    transition: transform .16s ease, filter .16s ease;
+  }
+
+  button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+  }
+
+  button.secondary {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.16);
+  }
+
+  .preview-wrap {
+    padding: 22px;
+  }
+
+  .preview-stage {
+    min-height: 420px;
+    border-radius: 24px;
+    border: 1px dashed rgba(255,255,255,.18);
+    background:
+      linear-gradient(45deg, rgba(255,255,255,.04) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,.04) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(255,255,255,.04) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.04) 75%);
+    background-size: 24px 24px;
+    background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 24px;
+  }
+
+  .codebox {
+    padding: 0 22px 22px;
+  }
+
+  #outputCode {
+    min-height: 180px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+    white-space: pre;
+  }
+
+  .small-note {
+    padding: 0 22px 22px;
+    color: rgba(255,255,255,.58);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 940px) {
+    body {
+      padding: 16px;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .top {
+      display: block;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 16px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="top">
+    <div>
+      <h1>Audio Player Editor</h1>
+      <div class="subtitle">
+        Настрой красивый аудиоплеер, посмотри предпросмотр и получи готовый iframe-код для вставки в Genially.
+      </div>
+    </div>
+    <div class="badge">GitHub: Chekanaska / playertry1</div>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-title">Настройки плеера</div>
+
+      <div class="form">
+        <label>
+          Название плеера
+          <input id="playerTitle" value="My Audio Player">
+        </label>
+
+        <label>
+          Ссылка на папку GitHub или список raw-ссылок
+          <textarea id="sourceUrl" placeholder="Например:
+https://github.com/Chekanaska/playertry1/tree/main/audio
+
+или raw-ссылки построчно:
+https://raw.githubusercontent.com/Chekanaska/playertry1/main/audio/track1.mp3"></textarea>
+          <span class="hint">
+            Лучше всего: публичная папка в репозитории GitHub. Поддерживаются mp3, wav, ogg, m4a, aac, flac.
+          </span>
+        </label>
+
+        <label>
+          Ссылка на картинку / обложку
+          <input id="coverUrl" value="https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/8d/4a/Bui1PgqT.gif">
+        </label>
+
+        <div class="row">
+          <label>
+            Язык
+            <select id="lang">
+              <option value="ru" selected>Русский</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+
+          <label>
+            Форма
+            <select id="shape">
+              <option value="soft" selected>Мягкая</option>
+              <option value="round">Очень круглая</option>
+              <option value="sharp">Почти квадратная</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Основной цвет
+            <input type="color" id="accent" value="#8b5cf6">
+          </label>
+
+          <label>
+            Второй цвет
+            <input type="color" id="accent2" value="#06b6d4">
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Цвет панели
+            <input type="color" id="panelColor" value="#151827">
+          </label>
+
+          <label>
+            Цвет текста
+            <input type="color" id="textColor" value="#ffffff">
+          </label>
+        </div>
+
+        <div class="row">
+          <label>
+            Ширина, px
+            <input type="number" id="width" min="240" max="900" value="430">
+          </label>
+
+          <label>
+            Высота, px
+            <input type="number" id="height" min="280" max="900" value="560">
+          </label>
+        </div>
+
+        <label>
+          3D-тень
+          <input type="range" id="shadowPower" min="0" max="40" value="24">
+        </label>
+
+        <label>
+          Прозрачность панели
+          <input type="range" id="opacity" min="65" max="100" value="92">
+        </label>
+
+        <div class="actions">
+          <button id="refreshBtn">Обновить предпросмотр</button>
+          <button id="getCodeBtn">Получить код</button>
+          <button class="secondary" id="copyBtn">Копировать код</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">Предпросмотр</div>
+      <div class="preview-wrap">
+        <div class="preview-stage" id="preview"></div>
+      </div>
+
+      <div class="panel-title">Код для Genially</div>
+      <div class="codebox">
+        <textarea id="outputCode" readonly placeholder="Нажми «Получить код»"></textarea>
+      </div>
+
+      <div class="small-note">
+        В Genially вставляй именно код из этого окна как Embed / Insert HTML. Фон у плеера прозрачный.
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  const fields = [
+    "playerTitle", "sourceUrl", "coverUrl", "lang", "shape",
+    "accent", "accent2", "panelColor", "textColor",
+    "width", "height", "shadowPower", "opacity"
+  ];
+
+  const defaults = {
+    ru: {
+      playlist: "Плейлист",
+      empty: "Добавь ссылку на GitHub-папку или raw-ссылки на аудио",
+      loading: "Загружаю треки...",
+      noTracks: "Треки не найдены. Проверь ссылку или вставь raw-ссылки построчно.",
+      speed: "Скорость",
+      volume: "Громкость"
+    },
+    en: {
+      playlist: "Playlist",
+      empty: "Add a GitHub folder link or raw audio links",
+      loading: "Loading tracks...",
+      noTracks: "No tracks found. Check the link or paste raw links line by line.",
+      speed: "Speed",
+      volume: "Volume"
+    }
+  };
+
+  function getConfig() {
+    return {
+      title: $("playerTitle").value.trim() || "Audio Player",
+      source: $("sourceUrl").value.trim(),
+      cover: $("coverUrl").value.trim(),
+      lang: $("lang").value,
+      shape: $("shape").value,
+      accent: $("accent").value,
+      accent2: $("accent2").value,
+      panelColor: $("panelColor").value,
+      textColor: $("textColor").value,
+      width: Math.max(240, Number($("width").value) || 430),
+      height: Math.max(280, Number($("height").value) || 560),
+      shadowPower: Number($("shadowPower").value) || 0,
+      opacity: Number($("opacity").value) || 92
+    };
+  }
+
+  function escAttr(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function buildIframeCode(cfg) {
+    const doc = buildPlayerDoc(cfg);
+    return `<iframe srcdoc='${escAttr(doc)}' style="width:${cfg.width}px;height:${cfg.height}px;border:0;background:transparent;overflow:hidden;" allow="autoplay" scrolling="no"></iframe>`;
+  }
+
+  function updatePreview() {
+    const cfg = getConfig();
+    $("preview").innerHTML = buildIframeCode(cfg);
+  }
+
+  function outputCode() {
+    const cfg = getConfig();
+    const code = buildIframeCode(cfg);
+    $("outputCode").value = code;
+    $("preview").innerHTML = code;
+  }
+
+  $("refreshBtn").addEventListener("click", updatePreview);
+  $("getCodeBtn").addEventListener("click", outputCode);
+
+  $("copyBtn").addEventListener("click", async function () {
+    if (!$("outputCode").value.trim()) outputCode();
+    await navigator.clipboard.writeText($("outputCode").value);
+    $("copyBtn").textContent = "Скопировано!";
+    setTimeout(() => $("copyBtn").textContent = "Копировать код", 1400);
+  });
+
+  fields.forEach(id => {
+    $(id).addEventListener("input", updatePreview);
+    $(id).addEventListener("change", updatePreview);
+  });
+
+  function buildPlayerDoc(cfg) {
+    const safeCfg = JSON.stringify(cfg).replace(/</g, "\\u003c");
+    const radius = cfg.shape === "round" ? 34 : cfg.shape === "sharp" ? 14 : 24;
+    const t = defaults[cfg.lang] || defaults.ru;
+
+    return `<!doctype html>
+<html lang="${cfg.lang}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+    font-family: Inter, Arial, sans-serif;
+  }
+
+  body {
+    display: grid;
+    place-items: center;
+    padding: 10px;
+  }
+
+  .ap {
+    --accent: ${cfg.accent};
+    --accent2: ${cfg.accent2};
+    --text: ${cfg.textColor};
+    --panel: ${cfg.panelColor};
+    --radius: ${radius}px;
+    width: 100%;
+    height: 100%;
+    color: var(--text);
+    border-radius: var(--radius);
+    background:
+      radial-gradient(circle at 15% 5%, color-mix(in srgb, var(--accent) 36%, transparent), transparent 36%),
+      radial-gradient(circle at 90% 20%, color-mix(in srgb, var(--accent2) 34%, transparent), transparent 38%),
+      color-mix(in srgb, var(--panel) ${cfg.opacity}%, transparent);
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow:
+      0 ${Math.round(cfg.shadowPower * 0.8)}px ${Math.round(cfg.shadowPower * 2.4)}px rgba(0,0,0,.45),
+      inset 0 1px 0 rgba(255,255,255,.18);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .ap::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background:
+      linear-gradient(120deg, transparent 35%, rgba(255,255,255,.08), transparent 65%);
+    transform: rotate(12deg);
+    pointer-events: none;
+  }
+
+  .head {
+    position: relative;
+    z-index: 2;
+    padding: 16px 16px 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mini-cover {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 12px 26px rgba(0,0,0,.24);
+  }
+
+  .mini-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .titles {
+    min-width: 0;
+  }
+
+  .player-title {
+    font-size: 13px;
+    font-weight: 900;
+    opacity: .72;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-title {
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 950;
+    letter-spacing: -.4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .main {
+    position: relative;
+    z-index: 2;
+    min-height: 0;
+    padding: 6px 18px 0;
+    display: grid;
+    grid-template-rows: 1fr auto auto;
+    gap: 12px;
+  }
+
+  .cover {
+    min-height: 0;
+    border-radius: calc(var(--radius) - 4px);
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+    border: 1px solid rgba(255,255,255,.15);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 40px rgba(0,0,0,.22);
+    position: relative;
+  }
+
+  .cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgba(0,0,0,.38), transparent 48%),
+      radial-gradient(circle at 50% 30%, transparent, rgba(0,0,0,.2));
+    pointer-events: none;
+  }
+
+  .visual {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    height: 42px;
+    display: flex;
+    align-items: end;
+    gap: 4px;
+    z-index: 3;
+  }
+
+  .bar {
+    flex: 1;
+    min-width: 3px;
+    border-radius: 99px;
+    background: linear-gradient(to top, var(--accent), var(--accent2));
+    opacity: .88;
+    height: 20%;
+    transform-origin: bottom;
+    animation: bounce 1s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+
+  .playing .bar {
+    animation-play-state: running;
+  }
+
+  .bar:nth-child(2n) { animation-duration: .72s; }
+  .bar:nth-child(3n) { animation-duration: .94s; }
+  .bar:nth-child(4n) { animation-duration: 1.18s; }
+
+  @keyframes bounce {
+    0%, 100% { height: 16%; }
+    35% { height: 92%; }
+    70% { height: 34%; }
+  }
+
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    opacity: .76;
+    font-weight: 800;
+  }
+
+  .progress {
+    width: 100%;
+    height: 9px;
+    border-radius: 99px;
+    background: rgba(255,255,255,.16);
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .controls {
+    position: relative;
+    z-index: 2;
+    padding: 12px 16px 16px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  button {
+    border: 0;
+    color: var(--text);
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.12);
+    display: grid;
+    place-items: center;
+    transition: transform .14s ease, background .14s ease;
+  }
+
+  .icon-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(255,255,255,.18);
+  }
+
+  .play {
+    width: 58px;
+    height: 58px;
+    border-radius: 21px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--accent) 35%, transparent);
+    font-size: 22px;
+  }
+
+  .settings-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,.68);
+    font-weight: 800;
+  }
+
+  .setting {
+    background: rgba(0,0,0,.18);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 15px;
+    padding: 9px 10px;
+    display: grid;
+    gap: 6px;
+  }
+
+  select,
+  input[type="range"] {
+    width: 100%;
+  }
+
+  select {
+    border: 0;
+    outline: none;
+    color: var(--text);
+    background: rgba(255,255,255,.12);
+    border-radius: 10px;
+    padding: 7px;
+    font-weight: 800;
+  }
+
+  input[type="range"] {
+    accent-color: var(--accent);
+  }
+
+  .playlist-panel {
+    position: absolute;
+    z-index: 10;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-height: 52%;
+    overflow: auto;
+    padding: 12px;
+    border-radius: calc(var(--radius) - 4px);
+    background: rgba(8,10,18,.9);
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 24px 60px rgba(0,0,0,.46);
+    backdrop-filter: blur(18px);
+    display: none;
+  }
+
+  .playlist-panel.open {
+    display: block;
+  }
+
+  .playlist-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 950;
+    font-size: 14px;
+  }
+
+  .track {
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text);
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .track:hover,
+  .track.active {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 34%, transparent), rgba(255,255,255,.08));
+  }
+
+  .msg {
+    padding: 12px;
+    color: rgba(255,255,255,.7);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+
+<body>
+<div class="ap" id="app">
+  <div class="head">
+    <div class="mini-cover"><img id="miniCover" alt=""></div>
+    <div class="titles">
+      <div class="player-title" id="playerTitle"></div>
+      <div class="track-title" id="trackTitle"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="cover">
+      <img id="cover" alt="">
+      <div class="visual" id="visual"></div>
+    </div>
+
+    <div class="time-row">
+      <span id="current">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+
+    <div class="progress" id="progress">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="buttons">
+      <button class="icon-btn" id="playlistBtn" title="${t.playlist}">☰</button>
+      <button class="icon-btn" id="prevBtn">⏮</button>
+      <button class="icon-btn play" id="playBtn">▶</button>
+      <button class="icon-btn" id="nextBtn">⏭</button>
+    </div>
+
+    <div class="settings-row">
+      <div class="setting">
+        <span>${t.speed}</span>
+        <select id="speed">
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.25">1.25×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <span>${t.volume}</span>
+        <input id="volume" type="range" min="0" max="1" step="0.01" value="0.85">
+      </div>
+    </div>
+  </div>
+
+  <div class="playlist-panel" id="playlistPanel">
+    <div class="playlist-head">
+      <span>${t.playlist}</span>
+      <button class="icon-btn" id="closePlaylist" style="width:32px;height:32px;border-radius:10px;">×</button>
+    </div>
+    <div id="playlistList"></div>
+  </div>
+</div>
+
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+(function(){
+  const cfg = ${safeCfg};
+  const text = ${JSON.stringify(t)};
+  const audio = document.getElementById("audio");
+  const app = document.getElementById("app");
+  const playBtn = document.getElementById("playBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const playlistBtn = document.getElementById("playlistBtn");
+  const playlistPanel = document.getElementById("playlistPanel");
+  const closePlaylist = document.getElementById("closePlaylist");
+  const playlistList = document.getElementById("playlistList");
+  const progress = document.getElementById("progress");
+  const progressFill = document.getElementById("progressFill");
+  const current = document.getElementById("current");
+  const duration = document.getElementById("duration");
+  const speed = document.getElementById("speed");
+  const volume = document.getElementById("volume");
+  const cover = document.getElementById("cover");
+  const miniCover = document.getElementById("miniCover");
+  const playerTitle = document.getElementById("playerTitle");
+  const trackTitle = document.getElementById("trackTitle");
+  const visual = document.getElementById("visual");
+
+  let tracks = [];
+  let index = 0;
+
+  playerTitle.textContent = cfg.title || "Audio Player";
+  cover.src = cfg.cover || "";
+  miniCover.src = cfg.cover || "";
+
+  for (let i = 0; i < 22; i++) {
+    const b = document.createElement("div");
+    b.className = "bar";
+    b.style.animationDelay = (-Math.random()).toFixed(2) + "s";
+    visual.appendChild(b);
+  }
+
+  function cleanName(url) {
+    try {
+      const u = new URL(url);
+      const last = decodeURIComponent(u.pathname.split("/").pop() || "Track");
+      return last.replace(/\\.(mp3|wav|ogg|m4a|aac|flac)$/i, "").replace(/[-_]+/g, " ");
+    } catch(e) {
+      return String(url).split("/").pop().replace(/\\.(mp3|wav|ogg|m4a|aac|flac)$/i, "").replace(/[-_]+/g, " ");
+    }
+  }
+
+  function isAudio(url) {
+    return /\\.(mp3|wav|ogg|m4a|aac|flac)(\\?.*)?$/i.test(url);
+  }
+
+  function formatTime(sec) {
+    if (!isFinite(sec)) return "0:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ":" + String(s).padStart(2, "0");
+  }
+
+  function setMsg(msg) {
+    playlistList.innerHTML = '<div class="msg">' + msg + '</div>';
+    trackTitle.textContent = msg;
+  }
+
+  function renderPlaylist() {
+    playlistList.innerHTML = "";
+    if (!tracks.length) {
+      setMsg(text.noTracks);
+      return;
+    }
+
+    tracks.forEach((tr, i) => {
+      const btn = document.createElement("button");
+      btn.className = "track" + (i === index ? " active" : "");
+      btn.textContent = (i + 1) + ". " + tr.title;
+      btn.onclick = () => {
+        index = i;
+        loadTrack();
+        playAudio();
+        playlistPanel.classList.remove("open");
+      };
+      playlistList.appendChild(btn);
+    });
+  }
+
+  function loadTrack() {
+    if (!tracks.length) {
+      audio.removeAttribute("src");
+      trackTitle.textContent = text.empty;
+      return;
+    }
+
+    const tr = tracks[index];
+    audio.src = tr.src;
+    trackTitle.textContent = tr.title || cleanName(tr.src);
+    renderPlaylist();
+  }
+
+  async function playAudio() {
+    if (!tracks.length) return;
+    try {
+      await audio.play();
+    } catch(e) {}
+  }
+
+  function next() {
+    if (!tracks.length) return;
+    index = (index + 1) % tracks.length;
+    loadTrack();
+    playAudio();
+  }
+
+  function prev() {
+    if (!tracks.length) return;
+    index = (index - 1 + tracks.length) % tracks.length;
+    loadTrack();
+    playAudio();
+  }
+
+  async function loadFromGitHubFolder(url) {
+    const u = new URL(url);
+    const parts = u.pathname.split("/").filter(Boolean);
+
+    const owner = parts[0];
+    const repo = parts[1];
+
+    let branch = "main";
+    let folder = "";
+
+    const treeIndex = parts.indexOf("tree");
+    if (treeIndex >= 0) {
+      branch = parts[treeIndex + 1] || "main";
+      folder = parts.slice(treeIndex + 2).join("/");
+    }
+
+    const api = "https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + folder + "?ref=" + branch;
+    const res = await fetch(api);
+    if (!res.ok) throw new Error("GitHub API error");
+    const data = await res.json();
+
+    return data
+      .filter(item => item.type === "file" && isAudio(item.name))
+      .map(item => ({
+        src: item.download_url,
+        title: item.name.replace(/\\.(mp3|wav|ogg|m4a|aac|flac)$/i, "").replace(/[-_]+/g, " ")
+      }));
+  }
+
+  async function loadManifest(folderUrl) {
+    const base = folderUrl.replace(/\\/?$/, "/");
+    const names = ["playlist.json", "tracks.json", "manifest.json"];
+
+    for (const name of names) {
+      try {
+        const res = await fetch(base + name);
+        if (!res.ok) continue;
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          return data.map(item => {
+            if (typeof item === "string") {
+              const src = item.startsWith("http") ? item : base + item.replace(/^\\//, "");
+              return { src, title: cleanName(src) };
+            }
+
+            const src = item.src || item.url || item.file;
+            return {
+              src: src && src.startsWith("http") ? src : base + String(src || "").replace(/^\\//, ""),
+              title: item.title || cleanName(src || "")
+            };
+          }).filter(x => x.src && isAudio(x.src));
+        }
+      } catch(e) {}
+    }
+
+    return [];
+  }
+
+  function rawList(str) {
+    return str
+      .split(/[\\n,]+/)
+      .map(x => x.trim())
+      .filter(Boolean)
+      .filter(isAudio)
+      .map(src => ({ src, title: cleanName(src) }));
+  }
+
+  function githubBlobToRaw(url) {
+    try {
+      const u = new URL(url);
+      if (u.hostname !== "github.com") return url;
+
+      const parts = u.pathname.split("/").filter(Boolean);
+      const blobIndex = parts.indexOf("blob");
+      if (blobIndex < 0) return url;
+
+      const owner = parts[0];
+      const repo = parts[1];
+      const branch = parts[blobIndex + 1];
+      const path = parts.slice(blobIndex + 2).join("/");
+
+      return "https://raw.githubusercontent.com/" + owner + "/" + repo + "/" + branch + "/" + path;
+    } catch(e) {
+      return url;
+    }
+  }
+
+  async function loadTracks() {
+    setMsg(text.loading);
+
+    const src = (cfg.source || "").trim();
+
+    if (!src) {
+      setMsg(text.empty);
+      tracks = [];
+      renderPlaylist();
+      return;
+    }
+
+    try {
+      if (src.includes("\\n") || src.includes(",")) {
+        tracks = rawList(src).map(x => ({ src: githubBlobToRaw(x.src), title: x.title }));
+      } else {
+        const one = githubBlobToRaw(src);
+
+        if (isAudio(one)) {
+          tracks = [{ src: one, title: cleanName(one) }];
+        } else if (/^https:\\/\\/github\\.com\\//i.test(src) && src.includes("/tree/")) {
+          tracks = await loadFromGitHubFolder(src);
+        } else if (/^https:\\/\\/[^\\s]+\\.github\\.io\\//i.test(src)) {
+          tracks = await loadManifest(src);
+        } else {
+          tracks = await loadManifest(src);
+        }
+      }
+    } catch(e) {
+      tracks = [];
+    }
+
+    if (!tracks.length) {
+      setMsg(text.noTracks);
+      renderPlaylist();
+      return;
+    }
+
+    index = 0;
+    loadTrack();
+  }
+
+  playBtn.onclick = () => {
+    if (audio.paused) playAudio();
+    else audio.pause();
+  };
+
+  prevBtn.onclick = prev;
+  nextBtn.onclick = next;
+
+  playlistBtn.onclick = () => {
+    playlistPanel.classList.toggle("open");
+  };
+
+  closePlaylist.onclick = () => {
+    playlistPanel.classList.remove("open");
+  };
+
+  speed.onchange = () => {
+    audio.playbackRate = Number(speed.value);
+  };
+
+  volume.oninput = () => {
+    audio.volume = Number(volume.value);
+  };
+
+  audio.volume = Number(volume.value);
+
+  audio.addEventListener("play", () => {
+    playBtn.textContent = "⏸";
+    app.classList.add("playing");
+  });
+
+  audio.addEventListener("pause", () => {
+    playBtn.textContent = "▶";
+    app.classList.remove("playing");
+  });
+
+  audio.addEventListener("ended", next);
+
+  audio.addEventListener("loadedmetadata", () => {
+    duration.textContent = formatTime(audio.duration);
+  });
+
+  audio.addEventListener("timeupdate", () => {
+    current.textContent = formatTime(audio.currentTime);
+    const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    progressFill.style.width = pct + "%";
+  });
+
+  progress.onclick = (e) => {
+    if (!audio.duration) return;
+    const rect = progress.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = Math.max(0, Math.min(audio.duration, audio.duration * pct));
+  };
+
+  loadTracks();
+})();
+<\/script>
+</body>
+</html>`;
+  }
+
+  updatePreview();
+})();
+</script>
+</body>
+</html>
